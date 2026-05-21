@@ -1,18 +1,15 @@
+// This is your Prisma schema file
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlserver"
+  provider = "sqlserver" // O "mysql" / "postgresql" según tu preferencia
+  url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-}
-
+// 1. CATALOG TABLES
 model Category {
   id        Int       @id @default(autoincrement())
   name      String    @db.VarChar(50)
@@ -23,24 +20,25 @@ model Category {
 }
 
 model Flavor {
-  id                 Int              @id @default(autoincrement())
-  name               String           @db.VarChar(50)
-  isAvailable        Boolean          @default(true)
-  currentStockLiters Decimal          @default(0.00) @db.Decimal(10, 2)
-  saleItemFlavors    SaleItemFlavor[]
+  id                  Int                @id @default(autoincrement())
+  name                String             @db.VarChar(50)
+  isAvailable         Boolean            @default(true)
+  currentStockLiters  Decimal            @default(0.00) @db.Decimal(10, 2)
+  saleItemFlavors     SaleItemFlavor[]
 
   @@map("flavors")
 }
 
 model PaymentMethod {
-  id             Int              @id @default(autoincrement())
-  name           String           @db.VarChar(50)
+  id             Int             @id @default(autoincrement())
+  name           String          @db.VarChar(50)
   sales          Sale[]
   creditPayments CreditPayment[]
 
   @@map("payment_methods")
 }
 
+// 2. ENTITIES
 model Customer {
   id                 Int                  @id @default(autoincrement())
   taxId              String               @unique @db.VarChar(20)
@@ -66,6 +64,7 @@ model Supplier {
   @@map("suppliers")
 }
 
+// 3. PRODUCTS & INVENTORY
 model Product {
   id             Int            @id @default(autoincrement())
   categoryId     Int
@@ -74,20 +73,21 @@ model Product {
   unitPrice      Decimal        @db.Decimal(12, 2)
   currentStock   Int            @default(0)
   trackInventory Boolean        @default(true)
-  category       Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  category       Category       @relation(fields: [categoryId], references: [id])
   purchaseItems  PurchaseItem[]
   saleItems      SaleItem[]
 
   @@map("products")
 }
 
+// 4. PURCHASING MODULE
 model Purchase {
   id            Int            @id @default(autoincrement())
   supplierId    Int
   invoiceNumber String?        @db.VarChar(50)
   totalCost     Decimal        @db.Decimal(12, 2)
   purchaseDate  DateTime       @default(now())
-  supplier      Supplier       @relation(fields: [supplierId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  supplier      Supplier       @relation(fields: [supplierId], references: [id])
   items         PurchaseItem[]
 
   @@map("purchases")
@@ -100,12 +100,13 @@ model PurchaseItem {
   quantity    Int
   costPerUnit Decimal  @db.Decimal(12, 2)
   subtotal    Decimal  @db.Decimal(12, 2)
-  purchase    Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  purchase    Purchase @relation(fields: [purchaseId], references: [id])
+  product     Product  @relation(fields: [productId], references: [id])
 
   @@map("purchase_items")
 }
 
+// 5. SALES MODULE
 model Sale {
   id                 Int                  @id @default(autoincrement())
   customerId         Int?
@@ -113,8 +114,8 @@ model Sale {
   totalAmount        Decimal              @db.Decimal(12, 2)
   isCredit           Boolean              @default(false)
   saleDate           DateTime             @default(now())
-  customer           Customer?            @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  paymentMethod      PaymentMethod        @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  customer           Customer?            @relation(fields: [customerId], references: [id])
+  paymentMethod      PaymentMethod        @relation(fields: [paymentMethodId], references: [id])
   items              SaleItem[]
   accountsReceivable AccountsReceivable[]
 
@@ -128,8 +129,8 @@ model SaleItem {
   quantity        Int
   priceAtSale     Decimal          @db.Decimal(12, 2)
   subtotal        Decimal          @db.Decimal(12, 2)
-  sale            Sale             @relation(fields: [saleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  product         Product          @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  sale            Sale             @relation(fields: [saleId], references: [id])
+  product         Product          @relation(fields: [productId], references: [id])
   saleItemFlavors SaleItemFlavor[]
 
   @@map("sale_items")
@@ -139,12 +140,13 @@ model SaleItemFlavor {
   id         Int      @id @default(autoincrement())
   saleItemId Int
   flavorId   Int
-  saleItem   SaleItem @relation(fields: [saleItemId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  flavor     Flavor   @relation(fields: [flavorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  saleItem   SaleItem @relation(fields: [saleItemId], references: [id])
+  flavor     Flavor   @relation(fields: [flavorId], references: [id])
 
   @@map("sale_item_flavors")
 }
 
+// 6. ACCOUNTS RECEIVABLE
 model AccountsReceivable {
   id               Int             @id @default(autoincrement())
   saleId           Int
@@ -153,8 +155,8 @@ model AccountsReceivable {
   remainingBalance Decimal         @db.Decimal(12, 2)
   status           String          @default("PENDING") @db.VarChar(20)
   dueDate          DateTime?       @db.Date
-  sale             Sale            @relation(fields: [saleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  customer         Customer        @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sale             Sale            @relation(fields: [saleId], references: [id])
+  customer         Customer        @relation(fields: [customerId], references: [id])
   payments         CreditPayment[]
 
   @@map("accounts_receivable")
@@ -167,8 +169,8 @@ model CreditPayment {
   amountPaid         Decimal            @db.Decimal(12, 2)
   paymentDate        DateTime           @default(now())
   referenceNumber    String?            @db.VarChar(50)
-  accountsReceivable AccountsReceivable @relation(fields: [arId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  paymentMethod      PaymentMethod      @relation(fields: [paymentMethodId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  accountsReceivable AccountsReceivable @relation(fields: [arId], references: [id])
+  paymentMethod      PaymentMethod      @relation(fields: [paymentMethodId], references: [id])
 
   @@map("credit_payments")
 }
