@@ -96,3 +96,49 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## Desarrollo (NestJS + Prisma)
+
+Requisitos:
+- Node.js (v18+ recomendado)
+- PostgreSQL (local o remoto) si va a ejecutar migraciones
+
+Instalación de dependencias:
+
+```bash
+npm install
+```
+
+Configuración de entorno:
+
+- Copiar o editar `.env` y establecer `DATABASE_URL` con la conexión a PostgreSQL.
+
+Prisma:
+
+- Generar Prisma Client:
+
+```bash
+npm run prisma:generate
+```
+
+- Crear/executar migraciones (requiere DB configurada):
+
+```bash
+npm run prisma:migrate
+```
+
+- Abrir Prisma Studio:
+
+```bash
+npm run prisma:studio
+```
+
+Ejecutar en desarrollo:
+
+```bash
+npm run start:dev
+```
+
+Notas:
+- Se ha removido la propiedad `url` del `prisma/schema.prisma` (Prisma v7). Configure la conexión de migraciones si es necesario siguiendo la documentación oficial: https://pris.ly/d/config-datasource
+
