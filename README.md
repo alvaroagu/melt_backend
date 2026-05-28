@@ -101,7 +101,7 @@ Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 
 Requisitos:
 - Node.js (v18+ recomendado)
-- PostgreSQL (local o remoto) si va a ejecutar migraciones
+- SQL Server accesible desde `DATABASE_URL`
 
 Instalación de dependencias:
 
@@ -111,7 +111,10 @@ npm install
 
 Configuración de entorno:
 
-- Copiar o editar `.env` y establecer `DATABASE_URL` con la conexión a PostgreSQL.
+- Define `DATABASE_URL` con una conexión válida a SQL Server.
+- Opcionalmente define:
+  - `PORT=3001`
+  - `FRONTEND_URL=http://localhost:3000`
 
 Prisma:
 
@@ -121,10 +124,16 @@ Prisma:
 npm run prisma:generate
 ```
 
-- Crear/executar migraciones (requiere DB configurada):
+- Crear o ejecutar migraciones (requiere DB configurada):
 
 ```bash
 npm run prisma:migrate
+```
+
+- Poblar datos ficticios:
+
+```bash
+npm run prisma:seed
 ```
 
 - Abrir Prisma Studio:
@@ -140,5 +149,6 @@ npm run start:dev
 ```
 
 Notas:
-- Se ha removido la propiedad `url` del `prisma/schema.prisma` (Prisma v7). Configure la conexión de migraciones si es necesario siguiendo la documentación oficial: https://pris.ly/d/config-datasource
-
+- El backend habilita CORS usando `FRONTEND_URL` y escucha en `3001` por defecto para convivir con el frontend de Next.js.
+- El seed ahora incluye datos de negocio para categorías, sabores, métodos de pago, clientes, proveedores, productos, compras y ventas.
+- Prisma v7 usa `prisma.config.ts` para la configuración del datasource y migraciones.
