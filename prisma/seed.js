@@ -1,6 +1,14 @@
+require('dotenv/config');
+
 const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient({});
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL is not set.');
+}
+
+const prisma = new PrismaClient({ accelerateUrl: connectionString });
 
 async function resetDatabase() {
   await prisma.creditPayment.deleteMany();
