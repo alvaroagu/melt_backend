@@ -8,6 +8,12 @@ async function bootstrap() {
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
+  const rawPort = process.env.PORT;
+  const port = rawPort === undefined ? 3001 : Number(rawPort);
+
+  if (!Number.isInteger(port) || port < 0) {
+    throw new Error(`Invalid PORT value: ${rawPort}`);
+  }
 
   app.enableCors({
     origin:
@@ -24,6 +30,6 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
-  await app.listen(process.env.PORT ?? 3001);
+  await app.listen(port);
 }
 void bootstrap();
