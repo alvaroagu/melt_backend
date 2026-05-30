@@ -62,7 +62,7 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private getBearerToken(request: Request) {
+  private getBearerToken(request: Pick<Request, 'headers'>) {
     const authorizationHeader = request.headers.authorization;
 
     if (!authorizationHeader?.startsWith('Bearer ')) {
