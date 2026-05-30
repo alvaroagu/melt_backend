@@ -151,4 +151,8 @@ npm run start:dev
 Notas:
 - El backend habilita CORS usando `FRONTEND_URL` y escucha en `3001` por defecto para convivir con el frontend de Next.js.
 - El seed ahora incluye datos de negocio para categorías, sabores, métodos de pago, clientes, proveedores, productos, compras y ventas.
+- Credenciales demo del seed:
+  - `alvaro@melt.local` / `MeltAdmin123!`
+  - `ventas@melt.local` / `MeltUser123!`
+  - `inventario@melt.local` / `MeltUser123!`
 - Prisma v7 usa `prisma.config.ts` para la configuración del datasource y migraciones.

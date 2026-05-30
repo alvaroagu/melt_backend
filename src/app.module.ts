@@ -1,3 +1,4 @@
+import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { Module } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { SuppliersModule } from './suppliers/suppliers.module';
 @Module({
   imports: [
     PrismaModule,
+    AuthModule,
     UsersModule,
     CategoriesModule,
     FlavorsModule,

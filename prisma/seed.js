@@ -1,6 +1,7 @@
 require('dotenv/config');
 
-const { PrismaClient } = require('@prisma/client');
+const { hash } = require('bcryptjs');
+const { PrismaClient, UserRole } = require('@prisma/client');
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -28,11 +29,32 @@ async function resetDatabase() {
 }
 
 async function seedUsers() {
+  const adminPasswordHash = await hash('MeltAdmin123!', 10);
+  const userPasswordHash = await hash('MeltUser123!', 10);
+
   return prisma.user.createMany({
     data: [
-      { email: 'alvaro@melt.local', name: 'Alvaro Aguirre' },
-      { email: 'ventas@melt.local', name: 'Equipo de Ventas' },
-      { email: 'inventario@melt.local', name: 'Equipo de Inventario' },
+      {
+        email: 'alvaro@melt.local',
+        name: 'Alvaro Aguirre',
+        passwordHash: adminPasswordHash,
+        role: UserRole.ADMIN,
+        isActive: true,
+      },
+      {
+        email: 'ventas@melt.local',
+        name: 'Equipo de Ventas',
+        passwordHash: userPasswordHash,
+        role: UserRole.USER,
+        isActive: true,
+      },
+      {
+        email: 'inventario@melt.local',
+        name: 'Equipo de Inventario',
+        passwordHash: userPasswordHash,
+        role: UserRole.USER,
+        isActive: true,
+      },
     ],
   });
 }
